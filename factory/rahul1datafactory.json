@@ -1,0 +1,15 @@
+{
+	"name": "rahul1datafactory",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Enabled",
+			"editable": true
+		}
+	},
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "88146212-185f-4a54-9e22-74455c3d7287",
+		"tenantId": "4bae3534-c111-44e0-9514-44f02ec9d57c"
+	}
+}
