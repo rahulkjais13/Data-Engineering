@@ -1564,7 +1564,7 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"FolderPath": {
-													"value": "@item()",
+													"value": "@concat('bronze/structured/', item().ObjectName, '/', formatDateTime(utcNow(), 'yyyy/MM'))",
 													"type": "Expression"
 												}
 											}
