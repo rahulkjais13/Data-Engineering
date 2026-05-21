@@ -1,0 +1,10 @@
+{
+	"name": "Rahul_LS_ADLSGen2",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://rahulstoragels.dfs.core.windows.net/"
+		}
+	}
+}
