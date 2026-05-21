@@ -1,0 +1,35 @@
+{
+	"name": "RDS_Metadata_JSON",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Rahul_LS_ADLSGen2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "metadata-config.json",
+				"fileSystem": "control-plane"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"ObjectName": {
+					"type": "string"
+				},
+				"Fields": {
+					"type": "string"
+				},
+				"IncrementalField": {
+					"type": "string"
+				},
+				"HasAttachments": {
+					"type": "boolean"
+				}
+			}
+		}
+	}
+}
