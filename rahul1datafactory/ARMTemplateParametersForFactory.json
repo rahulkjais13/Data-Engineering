@@ -1,0 +1,66 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "rahul1datafactory"
+		},
+		"AzureBlobStorage1_connectionString": {
+			"value": ""
+		},
+		"AzureBlobStorage2_connectionString": {
+			"value": ""
+		},
+		"AzureBlobStorage3_connectionString": {
+			"value": ""
+		},
+		"AzureBlobStorage4_connectionString": {
+			"value": ""
+		},
+		"AzureSqlDatabase1_password": {
+			"value": ""
+		},
+		"Rahul_LS_Salesforce_clientSecret": {
+			"value": ""
+		},
+		"AzureSqlDatabase1_properties_typeProperties_server": {
+			"value": "rahuldbserver.database.windows.net"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_database": {
+			"value": "rahuldatabase"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_userName": {
+			"value": "rahul"
+		},
+		"LS_ADLSGen2_properties_typeProperties_url": {
+			"value": "https://storageacccontrolplane.dfs.core.windows.net/"
+		},
+		"LS_AzureKeyVault_properties_typeProperties_baseUrl": {
+			"value": "https://pockeyvaultdiageo.vault.azure.net/"
+		},
+		"LS_Salesforce_properties_typeProperties_environmentUrl": {
+			"value": "https://orgfarm-fc8c4b2384-dev-ed.develop.my.salesforce.com"
+		},
+		"LS_Salesforce_properties_typeProperties_clientId": {
+			"value": "3MVG9VMBZCsTL9hkFslzrKTFSy3.9Tl4k4It_avkIVQWcATKwPjoLMZoudRzGldyNqfOl.JWXWll3rx7ULPFl"
+		},
+		"LS_Salesforce_HTTP_properties_typeProperties_url": {
+			"value": "https://orgfarm-fc8c4b2384-dev-ed.develop.my.salesforce.com"
+		},
+		"LS_Salesforce_REST_properties_typeProperties_url": {
+			"value": "https://orgfarm-fc8c4b2384-dev-ed.develop.my.salesforce.com"
+		},
+		"LS_Salesforce_REST_properties_typeProperties_clientId": {
+			"value": "3MVG9VMBZCsTL9hkFslzrKTFSy3.9Tl4k4It_avkIVQWcATKwPjoLMZoudRzGldyNqfOl.JWXWll3rx7ULPFl"
+		},
+		"Rahul_LS_Salesforce_properties_typeProperties_environmentUrl": {
+			"value": "https://orgfarm-1e71674edf-dev-ed.develop.my.salesforce.com"
+		},
+		"Rahul_LS_Salesforce_properties_typeProperties_clientId": {
+			"value": "3MVG9dAEux2v1sLvpy3h7_E9b5XdYEp8M_oqIC.OflD.8YGYhbi0t4mT7Qlm1a_bf51._aLJs6xlFqkJWE9ZK"
+		},
+		"Rahul_LS_ADLSGen2_properties_typeProperties_url": {
+			"value": "https://rahulstoragels.dfs.core.windows.net/"
+		}
+	}
+}
