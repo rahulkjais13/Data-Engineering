@@ -66,6 +66,7 @@
 							"typeProperties": {
 								"source": {
 									"type": "SalesforceV2Source",
+									"query": "@concat('SELECT ', item().Fields, ' FROM ', item().ObjectName, ' WHERE LastModifiedDate < LAST_N_MONTHS:3')",
 									"includeDeletedObjects": false,
 									"partitionOption": "AutoDetect",
 									"preserveScaleFromSchema": false
@@ -94,10 +95,7 @@
 									"referenceName": "RDS_Salesforce_Object_Dynamic",
 									"type": "DatasetReference",
 									"parameters": {
-										"ObjectName": {
-											"value": "@item()",
-											"type": "Expression"
-										}
+										"ObjectName": "@item().ObjectName"
 									}
 								}
 							],
