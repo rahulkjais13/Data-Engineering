@@ -15,10 +15,11 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileSystem": {
+				"folderPath": {
 					"value": "@dataset().FolderPath",
 					"type": "Expression"
-				}
+				},
+				"fileSystem": "datalake"
 			},
 			"compressionCodec": "snappy"
 		},
