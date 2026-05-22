@@ -1,5 +1,5 @@
 {
-	"name": "RDS_Salesforce_Attachment_RESTtResource1",
+	"name": "RDS_Salesforce_Attachment_REST",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "RLS_Salesforce_REST",
@@ -13,7 +13,10 @@
 		"annotations": [],
 		"type": "RestResource",
 		"typeProperties": {
-			"relativeUrl": "/services/data/v52.0/sobjects/Attachment/@{dataset().AttachmentId}/Body"
+			"relativeUrl": {
+				"value": "/services/data/v52.0/sobjects/Attachment/@{dataset().AttachmentId}/Body",
+				"type": "Expression"
+			}
 		},
 		"schema": []
 	}
