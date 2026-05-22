@@ -66,7 +66,10 @@
 							"typeProperties": {
 								"source": {
 									"type": "SalesforceV2Source",
-									"query": "@concat('SELECT ', item().Fields, ' FROM ', item().ObjectName, ' WHERE LastModifiedDate < LAST_N_MONTHS:3')",
+									"query": {
+										"value": "@concat('SELECT ', item().Fields, ' FROM ', item().ObjectName, ' WHERE LastModifiedDate < LAST_N_MONTHS:3')",
+										"type": "Expression"
+									},
 									"includeDeletedObjects": false,
 									"partitionOption": "AutoDetect",
 									"preserveScaleFromSchema": false
@@ -111,6 +114,49 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "Check_For_Attachments",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "Copy data1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(item().HasAttachments, true)",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Execute Pipeline1",
+										"type": "ExecutePipeline",
+										"dependsOn": [],
+										"policy": {
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"pipeline": {
+												"referenceName": "rp_extract_sf_attachments",
+												"type": "PipelineReference"
+											},
+											"waitOnCompletion": true,
+											"parameters": {
+												"ObjectName": {
+													"value": "@item().ObjectName",
+													"type": "Expression"
+												}
+											}
+										}
+									}
+								]
+							}
 						}
 					]
 				}
