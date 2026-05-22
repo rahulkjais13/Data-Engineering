@@ -17,7 +17,10 @@
 				"typeProperties": {
 					"source": {
 						"type": "SalesforceV2Source",
-						"query": "@concat('SELECT Id, ParentId, Name FROM Attachment WHERE Parent.Type = ''', pipeline().parameters.ObjectName, '''')",
+						"query": {
+							"value": "@concat('SELECT Id, ParentId, Name FROM Attachment WHERE Parent.Type = ''', pipeline().parameters.ObjectName, '''')",
+							"type": "Expression"
+						},
 						"includeDeletedObjects": false,
 						"partitionOption": "AutoDetect",
 						"preserveScaleFromSchema": false
@@ -66,13 +69,7 @@
 									}
 								},
 								"enableStaging": false
-							},
-							"inputs": [
-								{
-									"referenceName": "RDS_Salesforce_Attachment_RESTtResource1",
-									"type": "DatasetReference"
-								}
-							]
+							}
 						}
 					]
 				}
