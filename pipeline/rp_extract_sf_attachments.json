@@ -68,8 +68,34 @@
 										"supportRFC5988": "true"
 									}
 								},
+								"sink": {
+									"type": "BinarySink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									}
+								},
 								"enableStaging": false
-							}
+							},
+							"inputs": [
+								{
+									"referenceName": "RDS_Salesforce_Attachment_REST",
+									"type": "DatasetReference",
+									"parameters": {
+										"AttachmentId": "@item().Id"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "RDS_ADLS_Bronze_Unstructured",
+									"type": "DatasetReference",
+									"parameters": {
+										"ObjectName": "@pipeline().parameters.ObjectName",
+										"ParentId": "@item().ParentId",
+										"FileName": "@item().Name"
+									}
+								}
+							]
 						}
 					]
 				}
