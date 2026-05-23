@@ -20,6 +20,9 @@
 		"AzureSqlDatabase1_password": {
 			"value": ""
 		},
+		"RLS_Salesforce_REST_clientSecret": {
+			"value": ""
+		},
 		"Rahul_LS_Salesforce_clientSecret": {
 			"value": ""
 		},
@@ -53,14 +56,23 @@
 		"LS_Salesforce_REST_properties_typeProperties_clientId": {
 			"value": "3MVG9VMBZCsTL9hkFslzrKTFSy3.9Tl4k4It_avkIVQWcATKwPjoLMZoudRzGldyNqfOl.JWXWll3rx7ULPFl"
 		},
+		"RLS_Salesforce_REST_properties_typeProperties_url": {
+			"value": "https://orgfarm-1e71674edf-dev-ed.develop.my.salesforce.com"
+		},
+		"RLS_Salesforce_REST_properties_typeProperties_clientId": {
+			"value": "3MVG9dAEux2v1sLvpy3h7_E9b5XdYEp8M_oqIC.OflD.8YGYhbi0t4mT7Qlm1a_bf51._aLJs6xlFqkJWE9ZK"
+		},
+		"Rahul_LS_ADLSGen2_properties_typeProperties_url": {
+			"value": "https://rahulstoragels.dfs.core.windows.net/"
+		},
 		"Rahul_LS_Salesforce_properties_typeProperties_environmentUrl": {
 			"value": "https://orgfarm-1e71674edf-dev-ed.develop.my.salesforce.com"
 		},
 		"Rahul_LS_Salesforce_properties_typeProperties_clientId": {
 			"value": "3MVG9dAEux2v1sLvpy3h7_E9b5XdYEp8M_oqIC.OflD.8YGYhbi0t4mT7Qlm1a_bf51._aLJs6xlFqkJWE9ZK"
 		},
-		"Rahul_LS_ADLSGen2_properties_typeProperties_url": {
-			"value": "https://rahulstoragels.dfs.core.windows.net/"
+		"RLS_Salesforce_HTTP_properties_typeProperties_url": {
+			"value": "https://orgfarm-1e71674edf-dev-ed.develop.my.salesforce.com"
 		},
 		"containerUri": {
 			"value": ""

@@ -27,6 +27,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'AzureSqlDatabase1'"
 		},
+		"RLS_Salesforce_REST_clientSecret": {
+			"type": "secureString",
+			"metadata": "Secure string for 'clientSecret' of 'RLS_Salesforce_REST'"
+		},
 		"Rahul_LS_Salesforce_clientSecret": {
 			"type": "secureString",
 			"metadata": "Secure string for 'clientSecret' of 'Rahul_LS_Salesforce'"
@@ -55,6 +59,18 @@
 			"type": "string",
 			"defaultValue": "https://orgfarm-fc8c4b2384-dev-ed.develop.my.salesforce.com"
 		},
+		"RLS_Salesforce_REST_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://orgfarm-1e71674edf-dev-ed.develop.my.salesforce.com"
+		},
+		"RLS_Salesforce_REST_properties_typeProperties_clientId": {
+			"type": "string",
+			"defaultValue": "3MVG9dAEux2v1sLvpy3h7_E9b5XdYEp8M_oqIC.OflD.8YGYhbi0t4mT7Qlm1a_bf51._aLJs6xlFqkJWE9ZK"
+		},
+		"Rahul_LS_ADLSGen2_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://rahulstoragels.dfs.core.windows.net/"
+		},
 		"Rahul_LS_Salesforce_properties_typeProperties_environmentUrl": {
 			"type": "string",
 			"defaultValue": "https://orgfarm-1e71674edf-dev-ed.develop.my.salesforce.com"
@@ -63,17 +79,9 @@
 			"type": "string",
 			"defaultValue": "3MVG9dAEux2v1sLvpy3h7_E9b5XdYEp8M_oqIC.OflD.8YGYhbi0t4mT7Qlm1a_bf51._aLJs6xlFqkJWE9ZK"
 		},
-		"Rahul_LS_ADLSGen2_properties_typeProperties_url": {
+		"RLS_Salesforce_HTTP_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "https://rahulstoragels.dfs.core.windows.net/"
-		},
-		"LS_Salesforce_properties_typeProperties_environmentUrl": {
-			"type": "string",
-			"defaultValue": "https://orgfarm-fc8c4b2384-dev-ed.develop.my.salesforce.com"
-		},
-		"LS_Salesforce_properties_typeProperties_clientId": {
-			"type": "string",
-			"defaultValue": "3MVG9VMBZCsTL9hkFslzrKTFSy3.9Tl4k4It_avkIVQWcATKwPjoLMZoudRzGldyNqfOl.JWXWll3rx7ULPFl"
+			"defaultValue": "https://orgfarm-1e71674edf-dev-ed.develop.my.salesforce.com"
 		}
 	},
 	"variables": {
@@ -197,6 +205,40 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/RLS_Salesforce_REST')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('RLS_Salesforce_REST_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "OAuth2ClientCredential",
+					"clientId": "[parameters('RLS_Salesforce_REST_properties_typeProperties_clientId')]",
+					"clientSecret": {
+						"type": "SecureString",
+						"value": "[parameters('RLS_Salesforce_REST_clientSecret')]"
+					},
+					"tokenEndpoint": "https://orgfarm-1e71674edf-dev-ed.develop.my.salesforce.com/services/oauth2/token"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Rahul_LS_ADLSGen2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('Rahul_LS_ADLSGen2_properties_typeProperties_url')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Rahul_LS_Salesforce')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -217,14 +259,16 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Rahul_LS_ADLSGen2')]",
+			"name": "[concat(parameters('factoryName'), '/RLS_Salesforce_HTTP')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"type": "AzureBlobFS",
+				"type": "HttpServer",
 				"typeProperties": {
-					"url": "[parameters('Rahul_LS_ADLSGen2_properties_typeProperties_url')]"
+					"url": "[parameters('RLS_Salesforce_HTTP_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
 				}
 			},
 			"dependsOn": []
@@ -535,62 +579,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DelimitedText3')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage4",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "emp_1.csv",
-						"container": "rahulcontainer"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage4')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/LS_Salesforce')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "This is the linked service created for salesforce",
-				"annotations": [],
-				"type": "SalesforceV2",
-				"typeProperties": {
-					"environmentUrl": "[parameters('LS_Salesforce_properties_typeProperties_environmentUrl')]",
-					"clientId": "[parameters('LS_Salesforce_properties_typeProperties_clientId')]",
-					"clientSecret": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "LS_AzureKeyVault",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": "sf-client-secret",
-						"secretVersion": "7204ce8554a44433854540a83ca9a49d"
-					},
-					"apiVersion": "53.0",
-					"authenticationType": "OAuth2ClientCredential"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_AzureKeyVault')]"
 			]
 		}
 	]
