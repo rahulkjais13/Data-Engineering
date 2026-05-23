@@ -114,7 +114,7 @@
 									"parameters": {
 										"ObjectName": "@pipeline().parameters.ObjectName",
 										"ParentId": {
-											"value": "@item().FirstPublishLocationId",
+											"value": "@item().LinkedEntityId",
 											"type": "Expression"
 										},
 										"FileName": {
