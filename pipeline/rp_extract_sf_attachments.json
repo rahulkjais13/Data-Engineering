@@ -113,9 +113,12 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"ObjectName": "@pipeline().parameters.ObjectName",
-										"ParentId": "@item().ParentId",
+										"ParentId": {
+											"value": "@item().FirstPublishLocationId",
+											"type": "Expression"
+										},
 										"FileName": {
-											"value": "@item()['ContentDocument.Title']",
+											"value": "@item().PathOnClient",
 											"type": "Expression"
 										}
 									}
