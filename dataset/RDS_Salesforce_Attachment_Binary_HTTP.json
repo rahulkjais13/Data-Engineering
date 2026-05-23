@@ -15,10 +15,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "HttpServerLocation",
-				"relativeUrl": {
-					"value": "@concat('/services/data/v52.0/sobjects/Attachment/', dataset().AttachmentId, '/Body')",
-					"type": "Expression"
-				}
+				"relativeUrl": "@concat('/services/data/v52.0/sobjects/ContentVersion/', dataset().AttachmentId, '/VersionData')"
 			}
 		}
 	}
