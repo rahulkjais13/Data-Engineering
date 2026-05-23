@@ -75,6 +75,10 @@
 			"type": "string",
 			"defaultValue": "3MVG9VMBZCsTL9hkFslzrKTFSy3.9Tl4k4It_avkIVQWcATKwPjoLMZoudRzGldyNqfOl.JWXWll3rx7ULPFl"
 		},
+		"RLS_Salesforce_HTTP_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://orgfarm-1e71674edf-dev-ed.develop.my.salesforce.com"
+		},
 		"RLS_Salesforce_REST_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://orgfarm-1e71674edf-dev-ed.develop.my.salesforce.com"
@@ -94,10 +98,6 @@
 		"Rahul_LS_Salesforce_properties_typeProperties_clientId": {
 			"type": "string",
 			"defaultValue": "3MVG9dAEux2v1sLvpy3h7_E9b5XdYEp8M_oqIC.OflD.8YGYhbi0t4mT7Qlm1a_bf51._aLJs6xlFqkJWE9ZK"
-		},
-		"RLS_Salesforce_HTTP_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://orgfarm-1e71674edf-dev-ed.develop.my.salesforce.com"
 		}
 	},
 	"variables": {
@@ -801,7 +801,7 @@
 							"source": {
 								"type": "SalesforceV2Source",
 								"query": {
-									"value": "SELECT Id, PathOnClient, FirstPublishLocationId FROM ContentVersion WHERE IsLatest = true",
+									"value": "@concat('SELECT ContentDocumentId, ContentDocument.LatestPublishedVersionId, ContentDocument.Title, LinkedEntityId FROM ContentDocumentLink WHERE LinkedEntityId IN (SELECT Id FROM ', pipeline().parameters.ObjectName, ')')",
 									"type": "Expression"
 								},
 								"includeDeletedObjects": false,
@@ -812,7 +812,7 @@
 								"referenceName": "RDS_Salesforce_Object_Dynamic",
 								"type": "DatasetReference",
 								"parameters": {
-									"ObjectName": "ContentVersion"
+									"ObjectName": "ContentDocumentLink"
 								}
 							},
 							"firstRowOnly": false
@@ -877,7 +877,7 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"AttachmentId": {
-													"value": "@item().Id",
+													"value": "@item()['ContentDocument.LatestPublishedVersionId']",
 													"type": "Expression"
 												}
 											}
@@ -889,9 +889,12 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"ObjectName": "@pipeline().parameters.ObjectName",
-												"ParentId": "@item().ParentId",
+												"ParentId": {
+													"value": "@item().LinkedEntityId",
+													"type": "Expression"
+												},
 												"FileName": {
-													"value": "@item().PathOnClient",
+													"value": "@item()['ContentDocument.Title']",
 													"type": "Expression"
 												}
 											}
@@ -973,6 +976,185 @@
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/rp_sf_to_adls_archival')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup_Object_List",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "RDS_Metadata_JSON",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup_Object_List",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup_Object_List').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SalesforceV2Source",
+											"query": {
+												"value": "@concat('SELECT ', item().Fields, ' FROM ', item().ObjectName, ' WHERE LastModifiedDate < LAST_N_MONTHS:3')",
+												"type": "Expression"
+											},
+											"includeDeletedObjects": false,
+											"partitionOption": "AutoDetect",
+											"preserveScaleFromSchema": false
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "RDS_Salesforce_Object_Dynamic",
+											"type": "DatasetReference",
+											"parameters": {
+												"ObjectName": "@item().ObjectName"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "RDS_ADLS_Bronze_Dynamic",
+											"type": "DatasetReference",
+											"parameters": {
+												"FolderPath": {
+													"value": "@concat('bronze/structured/', item().ObjectName, '/', formatDateTime(utcNow(), 'yyyy/MM'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Check_For_Attachments",
+									"type": "IfCondition",
+									"dependsOn": [
+										{
+											"activity": "Copy data1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@equals(item().HasAttachments, true)",
+											"type": "Expression"
+										},
+										"ifTrueActivities": [
+											{
+												"name": "Execute Pipeline1",
+												"type": "ExecutePipeline",
+												"dependsOn": [],
+												"policy": {
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"pipeline": {
+														"referenceName": "rp_extract_sf_attachments",
+														"type": "PipelineReference"
+													},
+													"waitOnCompletion": true,
+													"parameters": {
+														"ObjectName": {
+															"value": "@item().ObjectName",
+															"type": "Expression"
+														}
+													}
+												}
+											}
+										]
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/RDS_Metadata_JSON')]",
+				"[concat(variables('factoryId'), '/datasets/RDS_Salesforce_Object_Dynamic')]",
+				"[concat(variables('factoryId'), '/datasets/RDS_ADLS_Bronze_Dynamic')]",
+				"[concat(variables('factoryId'), '/pipelines/rp_extract_sf_attachments')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/rp_sf_to_adls_archival_copy1')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -1657,6 +1839,36 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/RDS_Salesforce_Attachment_Binary_HTTP')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RLS_Salesforce_HTTP",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"AttachmentId": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation",
+						"relativeUrl": {
+							"value": "@concat('/services/data/v52.0/sobjects/ContentVersion/', dataset().AttachmentId, '/VersionData')",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/RLS_Salesforce_HTTP')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/RDS_Salesforce_Attachment_REST')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1885,6 +2097,21 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/RLS_Salesforce_HTTP')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('RLS_Salesforce_HTTP_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/RLS_Salesforce_REST')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -1932,232 +2159,11 @@
 						"type": "SecureString",
 						"value": "[parameters('Rahul_LS_Salesforce_clientSecret')]"
 					},
-					"apiVersion": "53.0",
+					"apiVersion": "54.0",
 					"authenticationType": "OAuth2ClientCredential"
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/RLS_Salesforce_HTTP')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "HttpServer",
-				"typeProperties": {
-					"url": "[parameters('RLS_Salesforce_HTTP_properties_typeProperties_url')]",
-					"enableServerCertificateValidation": true,
-					"authenticationType": "Anonymous"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/RDS_Salesforce_Attachment_Binary_HTTP')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "RLS_Salesforce_HTTP",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"AttachmentId": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "Binary",
-				"typeProperties": {
-					"location": {
-						"type": "HttpServerLocation",
-						"relativeUrl": "@concat('/services/data/v52.0/sobjects/ContentVersion/', dataset().AttachmentId, '/VersionData')"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/RLS_Salesforce_HTTP')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/rp_sf_to_adls_archival_copy1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Lookup_Object_List",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
-							},
-							"dataset": {
-								"referenceName": "RDS_Metadata_JSON",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "ForEach1",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Lookup_Object_List",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Lookup_Object_List').output.value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Copy data1",
-									"type": "Copy",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "SalesforceV2Source",
-											"query": {
-												"value": "@concat('SELECT ', item().Fields, ' FROM ', item().ObjectName, ' WHERE LastModifiedDate < LAST_N_MONTHS:3')",
-												"type": "Expression"
-											},
-											"includeDeletedObjects": false,
-											"partitionOption": "AutoDetect",
-											"preserveScaleFromSchema": false
-										},
-										"sink": {
-											"type": "ParquetSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
-											},
-											"formatSettings": {
-												"type": "ParquetWriteSettings"
-											}
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "RDS_Salesforce_Object_Dynamic",
-											"type": "DatasetReference",
-											"parameters": {
-												"ObjectName": "@item().ObjectName"
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "RDS_ADLS_Bronze_Dynamic",
-											"type": "DatasetReference",
-											"parameters": {
-												"FolderPath": {
-													"value": "@concat('bronze/structured/', item().ObjectName, '/', formatDateTime(utcNow(), 'yyyy/MM'))",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								},
-								{
-									"name": "Check_For_Attachments",
-									"type": "IfCondition",
-									"dependsOn": [
-										{
-											"activity": "Copy data1",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"expression": {
-											"value": "@equals(item().HasAttachments, true)",
-											"type": "Expression"
-										},
-										"ifTrueActivities": [
-											{
-												"name": "Execute Pipeline1",
-												"type": "ExecutePipeline",
-												"dependsOn": [],
-												"policy": {
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"pipeline": {
-														"referenceName": "rp_extract_sf_attachments",
-														"type": "PipelineReference"
-													},
-													"waitOnCompletion": true,
-													"parameters": {
-														"ObjectName": {
-															"value": "@item().ObjectName",
-															"type": "Expression"
-														}
-													}
-												}
-											}
-										]
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/RDS_Metadata_JSON')]",
-				"[concat(variables('factoryId'), '/datasets/RDS_Salesforce_Object_Dynamic')]",
-				"[concat(variables('factoryId'), '/datasets/RDS_ADLS_Bronze_Dynamic')]",
-				"[concat(variables('factoryId'), '/pipelines/rp_extract_sf_attachments')]"
-			]
 		}
 	]
 }

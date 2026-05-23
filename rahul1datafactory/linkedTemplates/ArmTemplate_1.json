@@ -163,6 +163,34 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/RDS_Salesforce_Attachment_Binary_HTTP')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RLS_Salesforce_HTTP",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"AttachmentId": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation",
+						"relativeUrl": {
+							"value": "@concat('/services/data/v52.0/sobjects/ContentVersion/', dataset().AttachmentId, '/VersionData')",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/RDS_Salesforce_Attachment_REST')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -262,31 +290,6 @@
 						"secretVersion": "7204ce8554a44433854540a83ca9a49d"
 					},
 					"tokenEndpoint": "https://orgfarm-fc8c4b2384-dev-ed.develop.my.salesforce.com/services/oauth2/token"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/RDS_Salesforce_Attachment_Binary_HTTP')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "RLS_Salesforce_HTTP",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"AttachmentId": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "Binary",
-				"typeProperties": {
-					"location": {
-						"type": "HttpServerLocation",
-						"relativeUrl": "@concat('/services/data/v52.0/sobjects/ContentVersion/', dataset().AttachmentId, '/VersionData')"
-					}
 				}
 			},
 			"dependsOn": []
@@ -597,7 +600,7 @@
 							"source": {
 								"type": "SalesforceV2Source",
 								"query": {
-									"value": "SELECT Id, PathOnClient, FirstPublishLocationId FROM ContentVersion WHERE IsLatest = true",
+									"value": "@concat('SELECT ContentDocumentId, ContentDocument.LatestPublishedVersionId, ContentDocument.Title, LinkedEntityId FROM ContentDocumentLink WHERE LinkedEntityId IN (SELECT Id FROM ', pipeline().parameters.ObjectName, ')')",
 									"type": "Expression"
 								},
 								"includeDeletedObjects": false,
@@ -608,7 +611,7 @@
 								"referenceName": "RDS_Salesforce_Object_Dynamic",
 								"type": "DatasetReference",
 								"parameters": {
-									"ObjectName": "ContentVersion"
+									"ObjectName": "ContentDocumentLink"
 								}
 							},
 							"firstRowOnly": false
@@ -673,7 +676,7 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"AttachmentId": {
-													"value": "@item().Id",
+													"value": "@item()['ContentDocument.LatestPublishedVersionId']",
 													"type": "Expression"
 												}
 											}
@@ -685,9 +688,12 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"ObjectName": "@pipeline().parameters.ObjectName",
-												"ParentId": "@item().ParentId",
+												"ParentId": {
+													"value": "@item().LinkedEntityId",
+													"type": "Expression"
+												},
 												"FileName": {
-													"value": "@item().PathOnClient",
+													"value": "@item()['ContentDocument.Title']",
 													"type": "Expression"
 												}
 											}
