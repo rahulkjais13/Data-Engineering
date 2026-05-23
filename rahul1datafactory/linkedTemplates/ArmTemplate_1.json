@@ -597,7 +597,7 @@
 							"source": {
 								"type": "SalesforceV2Source",
 								"query": {
-									"value": "@concat('SELECT Id, PathOnClient, FirstPublishLocationId FROM ContentVersion WHERE IsLatest = true, Name FROM Attachment WHERE Parent.Type = ''', pipeline().parameters.ObjectName, '''')",
+									"value": "SELECT Id, PathOnClient, FirstPublishLocationId FROM ContentVersion WHERE IsLatest = true",
 									"type": "Expression"
 								},
 								"includeDeletedObjects": false,
@@ -608,7 +608,7 @@
 								"referenceName": "RDS_Salesforce_Object_Dynamic",
 								"type": "DatasetReference",
 								"parameters": {
-									"ObjectName": "Attachment"
+									"ObjectName": "ContentVersion"
 								}
 							},
 							"firstRowOnly": false
