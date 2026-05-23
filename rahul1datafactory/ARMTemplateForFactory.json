@@ -801,7 +801,7 @@
 							"source": {
 								"type": "SalesforceV2Source",
 								"query": {
-									"value": "@concat('SELECT Id, ParentId, Name FROM Attachment WHERE Parent.Type = ''', pipeline().parameters.ObjectName, '''')",
+									"value": "@concat('SELECT Id, PathOnClient, FirstPublishLocationId FROM ContentVersion WHERE IsLatest = true, Name FROM Attachment WHERE Parent.Type = ''', pipeline().parameters.ObjectName, '''')",
 									"type": "Expression"
 								},
 								"includeDeletedObjects": false,
@@ -890,7 +890,10 @@
 											"parameters": {
 												"ObjectName": "@pipeline().parameters.ObjectName",
 												"ParentId": "@item().ParentId",
-												"FileName": "@item().Name"
+												"FileName": {
+													"value": "@item().PathOnClient",
+													"type": "Expression"
+												}
 											}
 										}
 									]
@@ -1969,10 +1972,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "HttpServerLocation",
-						"relativeUrl": {
-							"value": "@concat('/services/data/v52.0/sobjects/Attachment/', dataset().AttachmentId, '/Body')",
-							"type": "Expression"
-						}
+						"relativeUrl": "@concat('/services/data/v52.0/sobjects/ContentVersion/', dataset().AttachmentId, '/VersionData')"
 					}
 				}
 			},
