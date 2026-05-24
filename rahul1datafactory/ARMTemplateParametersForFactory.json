@@ -26,6 +26,9 @@
 		"Rahul_LS_Salesforce_clientSecret": {
 			"value": ""
 		},
+		"storagedatalake_accountKey": {
+			"value": ""
+		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"value": "rahuldbserver.database.windows.net"
 		},
@@ -73,6 +76,12 @@
 		},
 		"Rahul_LS_Salesforce_properties_typeProperties_clientId": {
 			"value": "3MVG9dAEux2v1sLvpy3h7_E9b5XdYEp8M_oqIC.OflD.8YGYhbi0t4mT7Qlm1a_bf51._aLJs6xlFqkJWE9ZK"
+		},
+		"htttplinkedservice_properties_typeProperties_url": {
+			"value": "https://raw.githubusercontent.com"
+		},
+		"storagedatalake_properties_typeProperties_url": {
+			"value": "https://rahulstoragels.dfs.core.windows.net/"
 		}
 	}
 }

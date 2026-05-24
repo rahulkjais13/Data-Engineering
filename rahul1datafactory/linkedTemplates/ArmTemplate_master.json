@@ -35,6 +35,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'clientSecret' of 'Rahul_LS_Salesforce'"
 		},
+		"storagedatalake_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'storagedatalake'"
+		},
 		"AzureSqlDatabase1_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "rahuldbserver.database.windows.net"
@@ -99,6 +103,14 @@
 			"type": "string",
 			"defaultValue": "3MVG9dAEux2v1sLvpy3h7_E9b5XdYEp8M_oqIC.OflD.8YGYhbi0t4mT7Qlm1a_bf51._aLJs6xlFqkJWE9ZK"
 		},
+		"htttplinkedservice_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://raw.githubusercontent.com"
+		},
+		"storagedatalake_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://rahulstoragels.dfs.core.windows.net/"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -147,6 +159,9 @@
 					"Rahul_LS_Salesforce_clientSecret": {
 						"value": "[parameters('Rahul_LS_Salesforce_clientSecret')]"
 					},
+					"storagedatalake_accountKey": {
+						"value": "[parameters('storagedatalake_accountKey')]"
+					},
 					"AzureSqlDatabase1_properties_typeProperties_server": {
 						"value": "[parameters('AzureSqlDatabase1_properties_typeProperties_server')]"
 					},
@@ -182,6 +197,12 @@
 					},
 					"Rahul_LS_Salesforce_properties_typeProperties_clientId": {
 						"value": "[parameters('Rahul_LS_Salesforce_properties_typeProperties_clientId')]"
+					},
+					"htttplinkedservice_properties_typeProperties_url": {
+						"value": "[parameters('htttplinkedservice_properties_typeProperties_url')]"
+					},
+					"storagedatalake_properties_typeProperties_url": {
+						"value": "[parameters('storagedatalake_properties_typeProperties_url')]"
 					}
 				}
 			},
@@ -217,6 +238,26 @@
 			},
 			"dependsOn": [
 				"[resourceId('Microsoft.Resources/deployments', 'rahul1datafactory_ArmTemplate_0')]"
+			]
+		},
+		{
+			"name": "rahul1datafactory_ArmTemplate_2",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'rahul1datafactory_ArmTemplate_1')]"
 			]
 		}
 	]
