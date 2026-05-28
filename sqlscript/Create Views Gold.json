@@ -1,0 +1,17 @@
+{
+	"name": "Create Views Gold",
+	"properties": {
+		"content": {
+			"query": "-----------------------\n--create view customer\n------------------------\nCREATE VIEW gold.customer\nAS\nSELECT *FROM OPENROWSET(\n    BULK 'https://rahulstoragels.blob.core.windows.net/silver/Customer/',\n    FORMAT = 'PARQUET'\n) as QUERY1\n-----------------------\n--create view customerss\n------------------------\nCREATE VIEW gold.customerss\nAS\nSELECT *FROM OPENROWSET(\n    BULK 'https://rahulstoragels.blob.core.windows.net/silver/Customerss/',\n    FORMAT = 'PARQUET'\n) as QUERY1\n-----------------------\n--create view product\n------------------------\nCREATE VIEW gold.products\nAS\nSELECT *FROM OPENROWSET(\n    BULK 'https://rahulstoragels.blob.core.windows.net/silver/Products/',\n    FORMAT = 'PARQUET'\n) as QUERY1\n-----------------------\n--create view return\n------------------------\nCREATE VIEW gold.return\nAS\nSELECT *FROM OPENROWSET(\n    BULK 'https://rahulstoragels.blob.core.windows.net/silver/Return/',\n    FORMAT = 'PARQUET'\n) as QUERY1\n-----------------------\n--create view sales\n------------------------\nCREATE VIEW gold.sales\nAS\nSELECT *FROM OPENROWSET(\n    BULK 'https://rahulstoragels.blob.core.windows.net/silver/Sales/',\n    FORMAT = 'PARQUET'\n) as QUERY1\n-----------------------\n--create view subCategory\n------------------------\nCREATE VIEW gold.subCategory\nAS\nSELECT *FROM OPENROWSET(\n    BULK 'https://rahulstoragels.blob.core.windows.net/silver/SubCategory/',\n    FORMAT = 'PARQUET'\n) as QUERY1\n-----------------------\n--create view territories\n------------------------\nCREATE VIEW gold.territories\nAS\nSELECT *FROM OPENROWSET(\n    BULK 'https://rahulstoragels.blob.core.windows.net/silver/Territories/',\n    FORMAT = 'PARQUET'\n) as QUERY1",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "awdatbase",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
